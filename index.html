@@ -58,6 +58,11 @@
             memo.innerHTML = savedMemo;
         }
 
+        // ページをロードしたらメモに自動でフォーカスを合わせ、キーボードを起動
+        window.addEventListener('load', () => {
+            memo.focus();
+        });
+
         // メモ内容を保存
         memo.addEventListener('input', () => {
             localStorage.setItem('memoContent', memo.innerHTML);
@@ -70,10 +75,11 @@
 
         // メモを消去する
         clearBtn.addEventListener('click', () => {
-            //if (confirm('メモを消去しますか？')) {
-                localStorage.removeItem('memoContent');
-                memo.innerHTML = '';
-            //}
+            const message = 'メモを消去しますか？';
+            const confirmedFlag = window.confirm(message);
+            if (!confirmedFlag) return;
+            localStorage.removeItem('memoContent');
+            memo.innerHTML = '';
         });
 
         // メモをコピーする
@@ -93,6 +99,17 @@
 
             // 選択を解除
             selection.removeAllRanges();
+        });
+
+        // 貼り付け時にプレーンテキストで貼り付け
+        memo.addEventListener('paste', (event) => {
+            event.preventDefault(); // デフォルトの貼り付け動作をキャンセル
+            navigator.clipboard.readText().then(text => {
+                // プレーンテキストを挿入
+                document.execCommand('insertText', false, text);
+            }).catch(err => {
+                console.error('クリップボードからの読み取りに失敗しました', err);
+            });
         });
     </script>
 </body>
